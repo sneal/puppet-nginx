@@ -7,6 +7,7 @@ class Nginx < Formula
   version '1.8.0-boxen1'
 
   depends_on 'pcre'
+  depends_on "openssl" => :recommended
 
   skip_clean 'logs'
 
@@ -32,12 +33,17 @@ class Nginx < Formula
   end
 
   def install
+    pcre = Formula["pcre"]
+    openssl = Formula["openssl"]
+    cc_opt = "-I#{pcre.include} -I#{openssl.include}"
+    ld_opt = "-L#{pcre.lib} -L#{openssl.lib}"
+    
     args = ["--prefix=#{prefix}",
             "--with-http_ssl_module",
             "--with-pcre",
             "--with-ipv6",
-            "--with-cc-opt='-I#{HOMEBREW_PREFIX}/include'",
-            "--with-ld-opt='-L#{HOMEBREW_PREFIX}/lib'",
+            "--with-cc-opt=#{cc_opt}",
+            "--with-ld-opt=#{ld_opt}",
             "--conf-path=/opt/boxen/config/nginx/nginx.conf",
             "--pid-path=/opt/boxen/data/nginx/nginx.pid",
             "--lock-path=/opt/boxen/data/nginx/nginx.lock"]
